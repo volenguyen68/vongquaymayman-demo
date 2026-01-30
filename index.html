@@ -74,6 +74,9 @@ h2{margin:20px 0}
     inset 0 0 25px rgba(255,255,255,.05);
 
   overflow: visible;
+   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #slotWrapper::before{
@@ -100,13 +103,14 @@ h2{margin:20px 0}
 
 
 #slot{
-  position:absolute;
-  display:flex;
-  gap:18px;
-  left:0;
-  top:20px;
-  will-change:transform;
+  position: absolute;
+  display: flex;
+  gap: 12px;
+  top: 10%;
+  will-change: transform;
 }
+
+
 
 .item{
   /* 🔥 KÍCH THƯỚC TỰ CO GIÃN */
@@ -297,21 +301,30 @@ h2.mythic-win{
 }
 
 #pointer{
-  position:absolute;
-  top:-12%;                 /* 👈 nhô lên ngoài slot */
-  left:50%;
-  transform:translateX(-50%);
-  width:0;
-  height:0;
-  border-left: 1.6vw solid transparent;
-  border-right: 1.6vw solid transparent;
-  border-top: 2.2vw solid red;
-  max-border-width: 18px;
-  z-index:999;               /* 👈 luôn nổi */
+  position: absolute;
+
+  left: 50%;
+  top: -4%;                 /* sẽ được JS canh chính xác */
+
+  transform: translateX(-50%);
+
+  width: 0;
+  height: 0;
+
+  border-left:  clamp(10px, 1.4vw, 18px) solid transparent;
+  border-right: clamp(10px, 1.4vw, 18px) solid transparent;
+  border-top:   clamp(14px, 2vw, 26px) solid red;
+
+  z-index: 9999;
+
   filter:
     drop-shadow(0 0 6px rgba(255,0,0,.8))
     drop-shadow(0 0 14px rgba(255,0,0,.6));
+
+  pointer-events: none;
 }
+
+
 
 
 button{
@@ -438,17 +451,11 @@ body.mythic-shake{ animation:shake 0.6s ease; }
   overflow:hidden;
 }
 .center-stage{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 24px;
-  transform: translate(-50%, -45%);
-  z-index: 10;
 }
 
 
@@ -472,31 +479,32 @@ body.mythic-shake{ animation:shake 0.6s ease; }
 .stage-wrap{
   position: fixed;
   inset: 0;
+  height: calc(var(--vh, 1vh) * 100); /* ✅ FIX iOS */
   display: flex;
   justify-content: center;
   align-items: center;
+
+  /* chừa notch iPhone */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
+
 
 /* khung thiết kế gốc */
 .stage{
   width: 1920px;
   height: 1080px;
-  position: relative;
-justify-content: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 28px;
 
-  /* ✨ scale tự động */
   transform: scale(
     min(
       100vw / 1920,
-      100vh / 1080
+      calc(var(--vh, 1vh) * 100 / 1080)
     )
   );
+
   transform-origin: center;
 }
+
 
 </style>
 </head>
@@ -509,12 +517,13 @@ justify-content: center;
 <h2 ></h2>
 <div class="stage-wrap">
 <div class="center-stage">
+  <div id="pointer"></div>
   <div id="slotWrapper">
-    <div id="pointer"></div>
-    <div id="slotViewport">
-      <div id="slot"></div>
-    </div>
+  <div id="slotViewport">
+    <div id="slot"></div>
   </div>
+</div>
+
 
   <button id="spinBtn" style="
     font-family: NinjaKage, Arial, sans-serif;
@@ -731,8 +740,16 @@ function spin(){
   const items=[...document.querySelectorAll('.item')];
   const winIndex = 27;
   const winItem = items[winIndex];
-  const w = items[0].offsetWidth + 18;
-  const target = winIndex * w + w/2 - 450;
+  const gap = parseFloat(getComputedStyle(slot).gap);
+const w = items[0].offsetWidth + gap;
+  const viewport = document.getElementById('slotViewport');
+const viewportWidth = viewport.offsetWidth;
+
+const target =
+  winIndex * w +
+  w / 2 -
+  viewportWidth / 2;
+
 
   slot.style.transition='none';
   slot.style.transform='translateX(0)';
@@ -803,8 +820,16 @@ function startMythicSlot(){
   const items=[...document.querySelectorAll('.item')];
   const winIndex = 10; // không sát quá cho có cảm giác kéo dài
   const winItem = items[winIndex];
-  const w = items[0].offsetWidth + 18;
-  const target = winIndex * w + w/2 - 450;
+  const gap = parseFloat(getComputedStyle(slot).gap);
+const w = items[0].offsetWidth + gap;
+  const viewport = document.getElementById('slotViewport');
+const viewportWidth = viewport.offsetWidth;
+
+const target =
+  winIndex * w +
+  w / 2 -
+  viewportWidth / 2;
+
 
   slot.style.transition='none';
   slot.style.transform='translateX(0)';
@@ -893,7 +918,16 @@ function closePopup(){
 
 
 btn.addEventListener('click',spin);
-</script>
 
+
+function fixVH(){
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+fixVH();
+window.addEventListener('resize', fixVH);
+window.addEventListener('orientationchange', fixVH);
+
+</script>
 </body>
 </html>
