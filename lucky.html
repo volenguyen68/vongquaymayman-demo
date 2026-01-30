@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta name="viewport"
+  content="width=device-width,
+           height=device-height,
+           initial-scale=1.0,
+           maximum-scale=1.0,
+           user-scalable=no">
+<meta charset="UTF-8" />
+<link rel="icon" type="image/png" sizes="32x32" href="C122.png">
+<link rel="apple-touch-icon" sizes="180x180" href="C122.png">
+<title>Vòng quay may mắn</title>
+<style align="center">
+  .badge{
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background:#0b0f1c;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-right:10px;
+}
+
+.badge img{
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+body{
+  color:white;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  font-family: "Pencilboy", Arial, sans-serif;
+}
+
+
+
+@font-face{
+  font-family: "NinjaKage";
+  src: url("SVN-NinjaKage.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face{
+  font-family: "Pencilboy";
+  src: url("SVN-Pencilboy.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@keyframes borderRun{
+  0%{ background-position:0% 50%; }
+  100%{ background-position:400% 50%; }
+}
+h2{margin:20px 0}
+
+#slotWrapper{
+  position: relative;
+
+  /* 🔥 tự co giãn theo màn hình */
+  width: min(88vw, 900px);
+  aspect-ratio: 900 / 170;
+
+  border-radius: 18px;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 12px 35px rgba(0,0,0,.5),
+    inset 0 0 25px rgba(255,255,255,.05);
+
+  overflow: visible;
+}
+
+#slotWrapper::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius:20px;
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,.15),
+    rgba(255,255,255,.05),
+    rgba(255,255,255,.15)
+  );
+  pointer-events:none;
+}
+
+#slotViewport{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  border-radius:18px;
+  position:relative;
+}
+
+
+#slot{
+  position:absolute;
+  display:flex;
+  gap:18px;
+  left:0;
+  top:20px;
+  will-change:transform;
+}
+
+.item{
+  /* 🔥 KÍCH THƯỚC TỰ CO GIÃN */
+  aspect-ratio: 1 / 1;
+  height: 82%;
+  width: auto;
+  min-width: clamp(72px, 14vw, 140px);
+
+  /* 🎨 GIAO DIỆN */
+  background:#0b0f1c;
+  border-radius: 18%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  /* ✍️ CHỮ */
+  font-size: clamp(14px, 2.6vw, 22px);
+  font-weight:700;
+  font-family: "NinjaKage", Arial, sans-serif;
+  text-align:center;
+  line-height:1.2;
+
+  /* 🌈 CHỮ GRADIENT */
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size:300% 100%;
+  animation:textFlow 4s linear infinite;
+
+  /* ⚙️ KỸ THUẬT */
+  position:relative;
+  overflow:hidden;
+}
+
+
+/* ===== MÀU CHỮ ===== */
+.item.common{
+  background-image: linear-gradient(90deg,#aaa,#888,#aaa);
+}
+
+.item.rare{
+  background-image: linear-gradient(70deg,#00e5ff,#e1e9e3,#00e5ff,#111212);
+}
+
+.item.epic{
+  background-image: linear-gradient(70deg,#8c00ff,#f4f6f5,#6600ff,#111212);
+}
+
+.item.legendary{ background-image: linear-gradient(10deg,
+    red,
+    orange,
+    yellow,
+    lime,
+    cyan,
+    blue,
+    violet,
+    red); }
+
+.item.mythic{
+  background-image: linear-gradient(
+    70deg,
+    #b26bff,#0a0a0a,#9660e1,#0d0d0e
+  );
+}
+
+.item.common{ --border-gradient: linear-gradient(10deg,#ffffff,#aaa,#b9b8b8); }
+.item.rare{ --border-gradient: linear-gradient(10deg,#00e5ff,#e1e9e3,#00e5ff,#111212); }
+.item.epic{ --border-gradient: linear-gradient(10deg,#8c00ff,#0b0c0c,#6600ff,#111212); }
+.item.legendary{
+  --border-gradient: linear-gradient(
+    10deg,
+    red,
+    orange,
+    yellow,
+    lime,
+    cyan,
+    blue,
+    violet,
+    red
+  );
+}
+@keyframes titleShake{
+  0%{transform:translate(0,0)}
+  20%{transform:translate(-4px,2px)}
+  40%{transform:translate(4px,-2px)}
+  60%{transform:translate(-3px,1px)}
+  80%{transform:translate(3px,-1px)}
+  100%{transform:translate(0,0)}
+}
+
+h2.mythic-win{
+  animation:
+    titleShake 0.6s ease,
+    titleRainbow 1.2s linear infinite;
+
+  text-shadow:
+    0 0 10px #fff,
+    0 0 30px #ff6bff,
+    0 0 60px #b26bff;
+}
+
+.item.mythic{ --border-gradient: linear-gradient(60deg,#b26bff,#0a0a0a,#9660e1,#0d0d0e); }
+.item.secret{
+  background-image: linear-gradient(
+    90deg,
+    #000,
+    #f8f8f9,
+    #000000,
+    #ffffff,
+    #030303,
+    #ffffff
+  );
+  animation:textFlow 2s linear infinite;
+}
+
+.item.secret{ 
+  --border-gradient: linear-gradient(
+    10deg,
+   #000,
+    #f8f8f9,
+    #000000,
+    #ffffff,
+    #030303,
+    #ffffff
+  );
+}
+
+.item::before{
+  content:"";
+  position:absolute;
+  inset:-3px;
+  border-radius:22px;
+  background:var(--border-gradient);
+  font-family: "NinjaKage", Arial, sans-serif;
+  background-size:400% 100%;
+  animation:borderFlow var(--speed,10s) linear infinite;
+  z-index:-2;
+}
+.item.legendary.win{
+  box-shadow:
+    0 0 20px #ffd000,
+    0 0 40px #fff6b7,
+    0 0 80px rgba(255,208,0,.8);
+}
+.item.secret::before{
+  animation: borderRun 1.2s linear infinite;
+  filter:
+    brightness(1.8)
+    drop-shadow(0 0 20px #7f00ff)
+    drop-shadow(0 0 40px #00e5ff);
+}
+
+
+
+.item::after{
+  content:"";
+  position:absolute;
+  inset:2px;
+  border-radius:16px;
+  background:#0b0f1c;
+  font-family: "NinjaKage", Arial, sans-serif;
+  z-index:-1;
+}
+
+.item.win::before{
+  animation:borderFlow 0.5s linear infinite;
+  filter:brightness(1.6) drop-shadow(0 0 14px rgba(255,0,200,.9));
+  font-family: "NinjaKage", Arial, sans-serif;
+}
+
+.item.legendary::before{
+  animation: borderRun 2.2s linear infinite;
+  filter: brightness(1.4) drop-shadow(0 0 14px rgba(255, 255, 255, 0.9));
+}
+.item.epic::before{
+  animation: borderRun 2.2s linear infinite;
+  filter: brightness(1.4) drop-shadow(0 0 14px rgba(178,107,255,.9));
+}
+
+@keyframes borderFlow{
+  0%{background-position:0% 50%}
+  100%{background-position:-400% 50%}
+}
+
+@keyframes textFlow{
+  0%{background-position:0% 50%}
+  100%{background-position:300% 50%}
+}
+
+#pointer{
+  position:absolute;
+  top:-12%;                 /* 👈 nhô lên ngoài slot */
+  left:50%;
+  transform:translateX(-50%);
+  width:0;
+  height:0;
+  border-left: 1.6vw solid transparent;
+  border-right: 1.6vw solid transparent;
+  border-top: 2.2vw solid red;
+  max-border-width: 18px;
+  z-index:999;               /* 👈 luôn nổi */
+  filter:
+    drop-shadow(0 0 6px rgba(255,0,0,.8))
+    drop-shadow(0 0 14px rgba(255,0,0,.6));
+}
+
+
+button{
+  margin-top:24px;
+  padding:10px 26px;
+  font-size:18px;
+}
+
+@keyframes shake{
+  0%{transform:translate(0,0)}
+  20%{transform:translate(-6px,4px)}
+  40%{transform:translate(6px,-4px)}
+  60%{transform:translate(-4px,2px)}
+  80%{transform:translate(4px,-2px)}
+  100%{transform:translate(0,0)}
+}
+
+body.mythic-shake{ animation:shake 0.6s ease; }
+
+@keyframes zoomPop{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.35)}
+  100%{transform:scale(1.15)}
+}
+
+.item.mythic.win{
+  animation:zoomPop 0.6s cubic-bezier(.2,1.4,.4,1);
+  box-shadow:0 0 40px #b26bff,0 0 80px #fdfdfd;
+}
+
+/* ===== POPUP TRÚNG THƯỞNG ===== */
+#winPopup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  pointer-events:none;
+  transition:.3s;
+  z-index:9999;
+}
+
+#winPopup.show{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.popup{
+  background:#0b0f1c;
+  padding:30px 40px;
+  border-radius:20px;
+  text-align:center;
+  transform:scale(.6);
+  transition:.35s cubic-bezier(.2,1.4,.4,1);
+  box-shadow:0 0 50px rgba(255,255,255,.25);
+}
+
+#winPopup.show .popup{
+  transform:scale(1);
+}
+
+.popup h3{
+  margin:0 0 12px;
+  font-size:26px;
+}
+
+.popup p{
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:18px;
+}
+
+.popup.mythic{ box-shadow:0 0 60px #ff00cc }
+.popup.legendary{ box-shadow:0 0 50px #ffd000 }
+.popup.rare{ box-shadow:0 0 40px #00e5ff }
+.popup.common{ box-shadow:0 0 30px #aaa }
+@keyframes slotShake{
+  0%{ transform:translate(0,0) }
+  20%{ transform:translate(-10px,6px) }
+  40%{ transform:translate(10px,-6px) }
+  60%{ transform:translate(-6px,4px) }
+  80%{ transform:translate(6px,-4px) }
+  100%{ transform:translate(0,0) }
+}
+@keyframes secretRotate{
+  0%{
+    transform:scale(1) rotate(0deg);
+  }
+  40%{
+    transform:scale(1.2) rotate(6deg);
+  }
+  70%{
+    transform:scale(1.15) rotate(-6deg);
+  }
+  100%{
+    transform:scale(1.1) rotate(0deg);
+  }
+}
+
+.item.secret.win{
+  animation: zoomPop 0.8s cubic-bezier(.2,1.5,.3,1);
+  box-shadow:
+    0 0 60px #7f00ff,
+    0 0 120px #00e5ff;
+  animation: secretRotate 0.9s cubic-bezier(.2,1.4,.3,1);
+}
+
+#slot.secret-shake{
+  animation: slotShake 0.7s ease;
+}
+#spinBtn{
+  margin-top: 32px;
+} 
+/* ===== BẦU TRỜI ===== */
+.sky{
+  position:fixed;
+  inset:0;
+  background:
+    url("vong.png") center bottom / cover no-repeat,
+    linear-gradient(#2aa6ff, #6fd3ff);
+  z-index:-5;
+  overflow:hidden;
+}
+.center-stage{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  transform: translate(-50%, -45%);
+  z-index: 10;
+}
+
+
+/* ===== MÂY ===== */
+.clouds{
+  position:absolute;
+  inset:0;
+  background-image: url("bg-vong.png"); /* ảnh mây mario */
+  background-repeat: repeat-x;
+  background-position: 0 40%;
+  background-size: auto 55%;
+  animation: cloudMove 45s linear infinite;
+  opacity:0.9;
+}
+
+/* ===== MÂY CHẠY ===== */
+@keyframes cloudMove{
+  from{ background-position-x:0; }
+  to{ background-position-x:-3000px; }
+}
+.stage-wrap{
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* khung thiết kế gốc */
+.stage{
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+
+  /* ✨ scale tự động */
+  transform: scale(
+    min(
+      100vw / 1920,
+      100vh / 1080
+    )
+  );
+  transform-origin: center;
+}
+
+</style>
+</head>
+
+<body>
+  <div class="sky">
+  <div class="clouds"></div>
+</div>
+
+<h2 ></h2>
+<div class="stage-wrap">
+<div class="center-stage">
+  <div id="slotWrapper">
+    <div id="pointer"></div>
+    <div id="slotViewport">
+      <div id="slot"></div>
+    </div>
+  </div>
+
+  <button id="spinBtn" style="
+    font-family: NinjaKage, Arial, sans-serif;
+    font-size:22px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:12px 32px;
+    border-radius:14px;
+    background:#0b0f1c;
+    color:white;
+    cursor:pointer;
+  ">Quay</button>
+</div>
+</div>
+
+
+
+<!-- POPUP -->
+<div id="winPopup">
+  <div class="popup" id="popupBox">
+    <h3>🎉 Chúc mừng!</h3>
+    <p id="winText"></p>
+    <button onclick="closePopup()" style="
+    font-family: Pencilboy, Arial, sans-serif;
+    font-size:22px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:12px 32px;
+    border-radius:14px;
+    background:#0b0f1c;
+    color:white;
+    cursor:pointer;
+  ">OK</button>
+  </div>
+</div>
+
+<script>
+let pendingMythicSlot = false; 
+let isMythicOnlyMode = false;
+let inMythicSlot = false;
+let fakeCount = 0;
+let spinning = false;
+let cooldown = false;
+const COOLDOWN_TIME = 3;
+
+/* ===== TỈ LỆ PHẦN THƯỞNG (%) ===== */
+const rewardPools = {
+  mythic: ["Ô bất ngờ"],
+  legendary: ["Quao"],
+  epic: ["May mắn"],
+  rare: ["Ghê"],
+  common: ["Ôi không"]
+};
+const secretPool = ["Secret"];
+const mythicOnlyRates = [
+  { name: "mythic", rate: 0.5 },
+  { name: "secret", rate: 99.5 }
+];
+
+
+const displayRates = [
+  { name: "mythic", rate: 80 },   
+  { name: "legendary", rate: 10 },
+  { name: "epic", rate: 5 },
+  { name: "rare", rate: 3 },
+  { name: "common", rate: 2 }
+];
+
+const rewardRates = [
+  { name: "mythic", rate: 90 },
+  { name: "legendary", rate: 2 },
+  { name: "epic", rate:  3},
+  { name: "rare", rate: 4 },
+  { name: "common", rate: 90 }
+];
+
+const slot = document.getElementById('slot');
+const btn = document.getElementById('spinBtn');
+const popup = document.getElementById('winPopup');
+const popupBox = document.getElementById('popupBox');
+const winText = document.getElementById('winText');
+
+/* ===== RANDOM THEO TỈ LỆ ===== */
+function getMythicSlotReward(){
+  const rand = Math.random() * 100;
+
+  if(rand < 1){ // 1%
+    return {
+      rarity: "secret",
+      name: secretPool[0]
+    };
+  }else{
+    const pool = rewardPools.mythic;
+    return {
+      rarity: "mythic",
+      name: pool[Math.floor(Math.random()*pool.length)]
+    };
+  }
+}
+
+function getRewardByRate(){
+  // ===== BẢO HIỂM =====
+  if(fakeCount >= 10){
+    fakeCount = 0;
+    const pool = rewardPools.legendary;
+    return {
+      rarity: "legendary",
+      name: pool[Math.floor(Math.random()*pool.length)]
+    };
+  }
+
+  const total = rewardRates.reduce((s,r)=>s+r.rate,0);
+  let rand = Math.random()*total;
+
+  for(const r of rewardRates){
+    if(rand < r.rate){
+      const pool = rewardPools[r.name];
+      return {
+        rarity: r.name,
+        name: pool[Math.floor(Math.random()*pool.length)]
+      };
+    }
+    rand -= r.rate;
+  }
+}
+
+/* ===== RANDOM HIỂN THỊ (KHÔNG PHẢI KẾT QUẢ) ===== */
+function getDisplayReward(){
+  const total = displayRates.reduce((s,r)=>s+r.rate,0);
+  let rand = Math.random()*total;
+
+  for(const r of displayRates){
+    if(rand < r.rate) return r.name;
+    rand -= r.rate;
+  }
+}
+function getMythicOnlyReward(){
+  const total = mythicOnlyRates.reduce((s,r)=>s+r.rate,0);
+  let rand = Math.random()*total;
+
+  for(const r of mythicOnlyRates){
+    if(rand < r.rate){
+      if(r.name === "secret"){
+        return { rarity:"secret", name: secretPool[0] };
+      }
+      return {
+        rarity:"mythic",
+        name: rewardPools.mythic[
+          Math.floor(Math.random()*rewardPools.mythic.length)
+        ]
+      };
+    }
+    rand -= r.rate;
+  }
+}
+
+/* ===== TẠO SLOT ===== */
+function generate(finalReward){
+  slot.innerHTML='';
+  const winIndex = 27;
+
+  const isFake =
+    finalReward.rarity !== 'mythic' &&
+    Math.random() < 0.35;
+
+  if(isFake) fakeCount++;
+  else fakeCount = 0;
+
+  for(let i=0;i<50;i++){
+    const div=document.createElement('div');
+    let reward;
+
+    if(isFake && i === winIndex-1){
+      reward = { rarity:"mythic", name:"Năm Phần Trăm" }; // FAKE
+    }else if(i === winIndex){
+      reward = finalReward; // THẬT
+    }else{
+  if(isMythicOnlyMode){
+    reward = getMythicOnlyReward(); // ✅ chỉ mythic + secret
+  }else{
+    reward = getRewardByRate();     // slot thường giữ nguyên
+  }
+}
+
+
+    div.className = 'item';
+    div.textContent = reward.name;
+
+    div.classList.add(reward.rarity.toLowerCase());
+
+    // speed theo độ hiếm
+    if(reward.rarity === "mythic") div.style.setProperty('--speed','2.2s');
+    else if(reward.rarity === "legendary") div.style.setProperty('--speed','3s');
+    else if(reward.rarity === "epic") div.style.setProperty('--speed','4s');
+    else div.style.setProperty('--speed','5s');
+
+    slot.appendChild(div);
+  }
+}
+
+
+
+
+/* ===== QUAY ===== */
+function spin(){
+  if(spinning || cooldown) return;
+  spinning = true;
+
+  const reward = getRewardByRate();
+  generate(reward);
+
+
+
+  const items=[...document.querySelectorAll('.item')];
+  const winIndex = 27;
+  const winItem = items[winIndex];
+  const w = items[0].offsetWidth + 18;
+  const target = winIndex * w + w/2 - 450;
+
+  slot.style.transition='none';
+  slot.style.transform='translateX(0)';
+
+  // ===== THỜI GIAN & ĐỘ CHẬM THEO ĐỘ HIẾM =====
+  let duration = 4.5;
+  let easing = 'cubic-bezier(.08,.9,.12,1)'; // slow dần mạnh về cuối
+
+  if(reward === 'mythic'){
+    duration = 7;
+    easing = 'cubic-bezier(.02,.95,.05,1)';
+  }else if(reward === 'legendary' || reward === 'epic'){
+    duration = 5.8;
+    easing = 'cubic-bezier(.05,.92,.1,1)';
+  }
+
+  // ===== 1 CHUYỂN ĐỘNG DUY NHẤT =====
+  requestAnimationFrame(()=>{
+    slot.style.transition = `transform ${duration}s ${easing}`;
+    slot.style.transform = `translateX(-${target}px)`;
+  });
+
+  // ===== KẾT THÚC =====
+  setTimeout(()=>{
+  winItem.classList.add('win');
+  showPopup(reward.name, reward.rarity);
+
+if(reward.rarity === 'mythic'){
+  const title = document.querySelector('h2');
+  title.classList.add('mythic-win');
+
+  setTimeout(()=>{
+    title.classList.remove('mythic-win');
+  }, 1500);
+}
+
+
+
+
+  // ✅ NẾU TRÚNG MYTHIC → MỞ SLOT PHỤ
+if(reward.rarity === 'mythic'){
+  pendingMythicSlot = true; // ⬅ chỉ đánh dấu, CHƯA quay
+}
+
+  spinning = false;
+  cooldown = true;
+  btn.disabled = true;
+  btn.textContent = "Đang hồi...";
+
+  setTimeout(()=>{
+    cooldown = false;
+    btn.disabled = false;
+    btn.textContent = "Quay";
+  }, COOLDOWN_TIME);
+
+}, duration * 1000 + 150);
+
+}
+
+function startMythicSlot(){
+  inMythicSlot = true;        // ✅ BẬT NGAY TỪ ĐẦU
+  isMythicOnlyMode = true;
+
+  const reward = getMythicOnlyReward();
+  generate(reward);
+
+
+  const items=[...document.querySelectorAll('.item')];
+  const winIndex = 10; // không sát quá cho có cảm giác kéo dài
+  const winItem = items[winIndex];
+  const w = items[0].offsetWidth + 18;
+  const target = winIndex * w + w/2 - 450;
+
+  slot.style.transition='none';
+  slot.style.transform='translateX(0)';
+
+  // ⏳ QUAY LÂU + CHẬM DẦN MẠNH Ở CUỐI
+  requestAnimationFrame(()=>{
+    slot.style.transition =
+      'transform 10.5s cubic-bezier(.05,.95,.08,1)';
+    slot.style.transform = `translateX(-${target}px)`;
+  });
+
+  setTimeout(()=>{
+    winItem.classList.add('win');
+    showPopup(reward.name, reward.rarity);
+    isMythicOnlyMode = false;
+    inMythicSlot = false;
+    spinning = false; // 🔓 cho quay tiếp
+  }, 7700);
+}
+
+
+/* ===== POPUP ===== */
+function showPopup(name, rarity){
+  popupBox.className = 'popup ' + rarity;
+
+  if(rarity === 'common'){
+    winText.textContent = 'CHÚC BẠN MAY MẮN LẦN SAU';
+  }
+  else if(rarity === 'legendary'){
+    winText.textContent = 'Bạn nhận được giảm giá 10%';
+  }
+  else if(rarity === 'epic'){
+    winText.textContent = 'Bạn nhận được giảm giá 6%';
+  }
+  else if(rarity === 'rare'){
+    winText.textContent = 'Bạn có được cơ hội mua thêm topping với giá chỉ 2000 VNĐ';
+  }
+  else if(rarity === 'mythic'){
+  if(inMythicSlot){
+    // mythic ở slot phụ
+    winText.textContent = '🎁 Bạn được giảm giá 20%';
+  }else{
+    // mythic ở slot chính
+    winText.textContent = '🔥 MYTHIC! MỞ SLOT BÍ ẨN...';
+  }
+}
+
+  else if(rarity === 'secret'){
+  winText.textContent = '🌑 Bạn nhận được combo miễn phí';
+  slot.classList.add('secret-shake');
+
+  setTimeout(()=>{
+    slot.classList.remove('secret-shake');
+  }, 800);
+}
+
+
+  popup.classList.add('show');
+}
+
+
+
+function closePopup(){
+  popup.classList.remove('show');
+
+  // 🔥 Nếu đang chờ mở slot bí ẩn
+  if(pendingMythicSlot){
+    pendingMythicSlot = false;
+    spinning = true;        // khoá spam
+    startMythicSlot();      // ⬅ CHỈ QUAY KHI USER NHẤN OK
+    return;
+  }
+
+  // slot phụ quay xong
+  if(inMythicSlot){
+    inMythicSlot = false;
+    spinning = false;
+    return;
+  }
+
+  // slot thường
+  spinning = false;
+}
+
+
+
+
+btn.addEventListener('click',spin);
+</script>
+
+</body>
+</html>
